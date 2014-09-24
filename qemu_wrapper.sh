@@ -39,5 +39,5 @@ exec /usr/bin/systemd-nspawn -D /var/lib/cycore/qemu \
    -vga qxl -spice port=${SPICE_PORT},addr=127.0.0.1,disable-ticketing \
    -k en-us -m $VM_RAM -cpu qemu64 \
    -netdev bridge,br=${BRIDGE_IF},id=net0 -device virtio-net,netdev=net0,mac=$VM_MAC \
-   -drive format=rbd,file=rbd:${VM_RBD},cache=writeback,if=virtio
+   -drive format=rbd,file=rbd:${VM_RBD},cache=writeback,if=virtio $@
 
