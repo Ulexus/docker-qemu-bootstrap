@@ -26,6 +26,7 @@ VM_RAM=`etcdctl get /kvm/${INSTANCE}/ram`
 VM_MAC=`etcdctl get /kvm/${INSTANCE}/mac`
 VM_RBD=`etcdctl get /kvm/${INSTANCE}/rbd`
 SPICE_PORT=`etcdctl get /kvm/${INSTANCE}/spice_port`
+EXTRA_FLAGS=`etcdctl get /kvm/${INSTANCE}/extra_flags`
 
 # Mark us as the host
 etcdctl set /kvm/${INSTANCE}/host ${HOSTNAME}
@@ -39,5 +40,5 @@ exec /usr/bin/systemd-nspawn -D /var/lib/cycore/qemu \
    -vga qxl -spice port=${SPICE_PORT},addr=127.0.0.1,disable-ticketing \
    -k en-us -m $VM_RAM -cpu qemu64 \
    -netdev bridge,br=${BRIDGE_IF},id=net0 -device virtio-net,netdev=net0,mac=$VM_MAC \
-   -drive format=rbd,file=rbd:${VM_RBD},cache=writeback,if=virtio $@
+   -drive format=rbd,file=rbd:${VM_RBD},cache=writeback,if=virtio $EXTRA_FLAGS $@
 
