@@ -22,11 +22,13 @@ if [ ! -e ${INSTALL_PATH}/usr/bin/kvm ]; then
 fi
 
 # Get settings
+set +i
 VM_RAM=`etcdctl get /kvm/${INSTANCE}/ram`
 VM_MAC=`etcdctl get /kvm/${INSTANCE}/mac`
 VM_RBD=`etcdctl get /kvm/${INSTANCE}/rbd`
 SPICE_PORT=`etcdctl get /kvm/${INSTANCE}/spice_port`
 EXTRA_FLAGS=`etcdctl get /kvm/${INSTANCE}/extra_flags`
+set -i
 
 # Mark us as the host
 etcdctl set /kvm/${INSTANCE}/host ${HOSTNAME}
