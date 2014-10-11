@@ -1,7 +1,18 @@
 #!/bin/bash
 set -e
 
-: ${VM_RAM:=512}
+# Function for extracting keys from etcdctl if they exist
+# sets getKeyReturn to value of requested key (or "" if it doesn't exist)
+function getKey() {
+   getKeyReturn=""
+   if [ -n $1 ]; then
+      val=$(etcdctl get $1)
+      if [ $? -eq 0 ]; then
+         getKeyReturn=$val
+      fi
+   fi
+   return
+}
 
 # Make sure the required modules are loaded
 modprobe kvm
@@ -22,13 +33,11 @@ if [ ! -e ${INSTALL_PATH}/usr/bin/kvm ]; then
 fi
 
 # Get settings
-set +i
-VM_RAM=`etcdctl get /kvm/${INSTANCE}/ram`
-VM_MAC=`etcdctl get /kvm/${INSTANCE}/mac`
-VM_RBD=`etcdctl get /kvm/${INSTANCE}/rbd`
-SPICE_PORT=`etcdctl get /kvm/${INSTANCE}/spice_port`
-EXTRA_FLAGS=`etcdctl get /kvm/${INSTANCE}/extra_flags`
-set -i
+VM_RAM=${VM_RAM:-$(getKey /kvm/${INSTANCE}/ram; echo $getKeyReturn)}
+VM_MAC=${VM_MAC:-$(getKey /kvm/${INSTANCE}/mac; echo $getKeyReturn)}
+VM_RBD=${VM_RBD:-$(getKey /kvm/${INSTANCE}/rbd; echo $getKeyReturn)}
+SPICE_PORT=${SPICE_PORT:-$(getKey /kvm/${INSTANCE}/spice_port; echo $getKeyReturn)}
+EXTRA_FLAGS=${EXTRA_FLAGS:-$(getKey /kvm/${INSTANCE}/extra_flags; echo $getKeyReturn)}
 
 # Mark us as the host
 etcdctl set /kvm/${INSTANCE}/host ${HOSTNAME}
