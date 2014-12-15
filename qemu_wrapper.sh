@@ -39,8 +39,11 @@ VM_RBD=${VM_RBD:-$(getKey /kvm/${INSTANCE}/rbd; echo $getKeyReturn)}
 SPICE_PORT=${SPICE_PORT:-$(getKey /kvm/${INSTANCE}/spice_port; echo $getKeyReturn)}
 EXTRA_FLAGS=${EXTRA_FLAGS:-$(getKey /kvm/${INSTANCE}/extra_flags; echo $getKeyReturn)}
 
-# Mark us as the host
-etcdctl set /kvm/${INSTANCE}/host ${HOSTNAME}
+# If we do not have the host lock, abort
+if [ ${HOSTNAME} != $(etcdctl get /kvm/${INSTANCE}/host) ]; then
+   echo "We do not have a host lock; aborting"
+   exit 1
+fi
 
 # Execute
 exec /usr/bin/systemd-nspawn -D /var/lib/cycore/qemu \
